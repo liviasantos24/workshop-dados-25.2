@@ -1,0 +1,12 @@
+import pandas as pd
+
+ds = {'dias': ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sabado'],
+      'temperaturas': [28.6, 31.3, 29.6,32.8,26.1,24.3,28.5]}
+    
+soma = temperaturas
+
+df = pd.DataFrame(ds)
+print(df)
+
+media = np.mean(soma)
+print('A média das temperaturas semanais é:',media)
