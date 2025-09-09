@@ -1,0 +1,8 @@
+import numpy as np
+
+dias_da_semana = np.array(['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'])
+
+temperaturas = np.random.uniform(20.0, 35.0, 7)
+
+print(f"dias da semana: {dias_da_semana}")
+print(f"temperaturas: {temperaturas}")
