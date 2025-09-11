@@ -1,0 +1,190 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMVVa32y36WCRKj+Y5fFwtO",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/liviasantos24/workshop-dados-25.2/blob/main/projeto-ML\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 2,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "hSW_RbINfXGE",
+        "outputId": "9b18047a-6387-485c-b5f7-97f59a85a867"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_split.py:805: UserWarning: The least populated class in y has only 1 members, which is less than n_splits=5.\n",
+            "  warnings.warn(\n",
+            "/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_validation.py:528: FitFailedWarning: \n",
+            "1 fits failed out of a total of 5.\n",
+            "The score on these train-test partitions for these parameters will be set to nan.\n",
+            "If these failures are not expected, you can try to debug them by setting error_score='raise'.\n",
+            "\n",
+            "Below are more details about the failures:\n",
+            "--------------------------------------------------------------------------------\n",
+            "1 fits failed with the following error:\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_validation.py\", line 866, in _fit_and_score\n",
+            "    estimator.fit(X_train, y_train, **fit_params)\n",
+            "  File \"/usr/local/lib/python3.12/dist-packages/sklearn/base.py\", line 1389, in wrapper\n",
+            "    return fit_method(estimator, *args, **kwargs)\n",
+            "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.12/dist-packages/sklearn/pipeline.py\", line 662, in fit\n",
+            "    self._final_estimator.fit(Xt, y, **last_step_params[\"fit\"])\n",
+            "  File \"/usr/local/lib/python3.12/dist-packages/sklearn/base.py\", line 1389, in wrapper\n",
+            "    return fit_method(estimator, *args, **kwargs)\n",
+            "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+            "  File \"/usr/local/lib/python3.12/dist-packages/sklearn/linear_model/_logistic.py\", line 1301, in fit\n",
+            "    raise ValueError(\n",
+            "ValueError: This solver needs samples of at least 2 classes in the data, but the data contains only one class: np.int64(1)\n",
+            "\n",
+            "  warnings.warn(some_fits_failed_message, FitFailedWarning)\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Logistic Regression - Acurácia Média (CV): nan\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_split.py:805: UserWarning: The least populated class in y has only 1 members, which is less than n_splits=5.\n",
+            "  warnings.warn(\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Random Forest - Acurácia Média (CV): 0.90\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.12/dist-packages/sklearn/model_selection/_split.py:805: UserWarning: The least populated class in y has only 1 members, which is less than n_splits=5.\n",
+            "  warnings.warn(\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "KNN - Acurácia Média (CV): 0.90\n",
+            "\n",
+            "✅ Melhor modelo salvo como 'onepiece_survival_model.pkl'\n"
+          ]
+        }
+      ],
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "from sklearn.model_selection import train_test_split, cross_val_score\n",
+        "from sklearn.preprocessing import StandardScaler, OneHotEncoder\n",
+        "from sklearn.compose import ColumnTransformer\n",
+        "from sklearn.pipeline import Pipeline\n",
+        "from sklearn.impute import SimpleImputer\n",
+        "from sklearn.linear_model import LogisticRegression\n",
+        "from sklearn.ensemble import RandomForestClassifier\n",
+        "from sklearn.neighbors import KNeighborsClassifier\n",
+        "import joblib\n",
+        "\n",
+        "data = {\n",
+        "    \"Nome\": [\"Luffy\", \"Zoro\", \"Nami\", \"Usopp\", \"Sanji\", \"Robin\", \"Chopper\", \"Franky\", \"Brook\", \"Jinbe\"],\n",
+        "    \"Forca\": [95, 90, 40, 35, 85, 50, 45, 70, 60, 80],\n",
+        "    \"Inteligencia\": [70, 60, 85, 75, 65, 90, 80, 70, 65, 60],\n",
+        "    \"Velocidade\": [85, 80, 65, 55, 80, 60, 50, 55, 70, 65],\n",
+        "    \"Tipo_Fruta\": [\"Paramecia\", \"Nenhuma\", \"Nenhuma\", \"Nenhuma\", \"Nenhuma\", \"Paramecia\", \"Zoan\", \"Nenhuma\", \"Nenhuma\", \"Nenhuma\"],\n",
+        "    \"Habilidade\": [\"Haki\", \"Haki\", \"Clima-Tact\", \"Mira\", \"Haki\", \"Arqueologia\", \"Medicina\", \"Ciborgue\", \"Música\", \"Haki\"],\n",
+        "    \"Sobrevive\": [1, 1, 1, 0, 1, 1, 1, 1, 1, 1]\n",
+        "}\n",
+        "\n",
+        "df = pd.DataFrame(data)\n",
+        "\n",
+        "X = df[[\"Forca\", \"Inteligencia\", \"Velocidade\", \"Tipo_Fruta\", \"Habilidade\"]]\n",
+        "y = df[\"Sobrevive\"]\n",
+        "\n",
+        "numeric_features = [\"Forca\", \"Inteligencia\", \"Velocidade\"]\n",
+        "categorical_features = [\"Tipo_Fruta\", \"Habilidade\"]\n",
+        "\n",
+        "numeric_transformer = Pipeline(steps=[\n",
+        "    (\"imputer\", SimpleImputer(strategy=\"median\")),\n",
+        "    (\"scaler\", StandardScaler())\n",
+        "])\n",
+        "\n",
+        "categorical_transformer = Pipeline(steps=[\n",
+        "    (\"imputer\", SimpleImputer(strategy=\"most_frequent\")),\n",
+        "    (\"encoder\", OneHotEncoder(handle_unknown=\"ignore\"))\n",
+        "])\n",
+        "\n",
+        "preprocessor = ColumnTransformer(\n",
+        "    transformers=[\n",
+        "        (\"num\", numeric_transformer, numeric_features),\n",
+        "        (\"cat\", categorical_transformer, categorical_features)\n",
+        "    ]\n",
+        ")\n",
+        "\n",
+        "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42\n",
+        ")\n",
+        "\n",
+        "modelos = {\n",
+        "    \"Logistic Regression\": LogisticRegression(max_iter=500),\n",
+        "    \"Random Forest\": RandomForestClassifier(n_estimators=200, max_depth=5),\n",
+        "    \"KNN\": KNeighborsClassifier(n_neighbors=3)\n",
+        "}\n",
+        "\n",
+        "melhor_modelo = None\n",
+        "melhor_score = 0\n",
+        "\n",
+        "for nome, modelo in modelos.items():\n",
+        "    pipeline = Pipeline(steps=[(\"preprocessor\", preprocessor),\n",
+        "                               (\"classifier\", modelo)])\n",
+        "    scores = cross_val_score(pipeline, X_train, y_train, cv=5, scoring=\"accuracy\")\n",
+        "    media = scores.mean()\n",
+        "    print(f\"{nome} - Acurácia Média (CV): {media:.2f}\")\n",
+        "\n",
+        "    if media > melhor_score:\n",
+        "        melhor_score = media\n",
+        "        melhor_modelo = pipeline\n",
+        "\n",
+        "melhor_modelo.fit(X_train, y_train)\n",
+        "joblib.dump(melhor_modelo, \"onepiece_survival_model.pkl\")\n",
+        "\n",
+        "print(\"\\n✅ Melhor modelo salvo como 'onepiece_survival_model.pkl'\")\n"
+      ]
+    }
+  ]
+}
